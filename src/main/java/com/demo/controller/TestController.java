@@ -2,6 +2,7 @@ package com.demo.controller;
 
 import com.demo.entity.User;
 import com.demo.service.TestService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,8 +16,13 @@ public class TestController {
     @Resource
     private TestService testService;
 
+    @Resource
+    private RedisTemplate redisTemplate;
+
     @RequestMapping(value = {"/getTest"})
     public List<User> getTest() {
+        redisTemplate.opsForValue().set("userId", "zmh");
+        System.out.println(redisTemplate.opsForValue().get("userId"));
         return testService.getUser();
     }
 }
