@@ -4,6 +4,10 @@ public class User {
     private Integer id;
     private String name;
     private String pwd;
+    private String state;
+    private Integer roleId;
+    private String roleName;
+    private String roleState;
 
     public Integer getId() {
         return id;
@@ -24,5 +28,33 @@ public class User {
     }
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+
+    public String getState() {
+        return state;
+    }
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public String getRoleState() {
+        return roleState;
+    }
+    public void setRoleState(String roleState) {
+        this.roleState = roleState;
     }
 }
