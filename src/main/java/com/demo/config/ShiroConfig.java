@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import javax.servlet.Filter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,27 +31,20 @@ public class ShiroConfig {
     private int timeout;
 
     @Bean
-    public ShiroFilterFactoryBean shirFilter(SecurityManager securityManager) {
+    public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        //注意过滤器配置顺序 不能颠倒
-        //配置退出 过滤器,其中的具体的退出代码Shiro已经替我们实现了，登出后跳转配置的loginUrl
+        //过滤器配置
         filterChainDefinitionMap.put("/druid/*", "anon");
         filterChainDefinitionMap.put("/test/login", "anon");
-        filterChainDefinitionMap.put("/**", "authc");
-
-        //配置shiro默认登录界面地址，前后端分离中登录界面跳转应由前端路由控制，后台仅返回json数据
-        shiroFilterFactoryBean.setLoginUrl("/test/show");
-
-        //登录成功后要跳转的链接
-        shiroFilterFactoryBean.setSuccessUrl("/test/getTest");
-
-        //未授权界面;
-        shiroFilterFactoryBean.setUnauthorizedUrl("/403");
-
+        filterChainDefinitionMap.put("/**", "myShiroFilter");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        //自定义过滤器
+        Map<String, Filter> filterMap = new LinkedHashMap<>();
+        filterMap.put("myShiroFilter", new ShiroFilter());
+        shiroFilterFactoryBean.setFilters(filterMap);
         return shiroFilterFactoryBean;
     }
 
@@ -61,7 +55,9 @@ public class ShiroConfig {
         //自定义session管理 使用redis
         securityManager.setSessionManager(sessionManager());
         //自定义缓存实现 使用redis
-        securityManager.setCacheManager(cacheManager());
+        //securityManager.setCacheManager(cacheManager());
+        //记住我配置
+
         return securityManager;
     }
 
@@ -83,8 +79,6 @@ public class ShiroConfig {
         HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
         //散列算法:这里使用MD5算法;
         hashedCredentialsMatcher.setHashAlgorithmName("md5");
-        //散列的次数，比如散列两次，相当于 md5(md5(""));
-        hashedCredentialsMatcher.setHashIterations(2);
         return hashedCredentialsMatcher;
     }
 
@@ -107,7 +101,7 @@ public class ShiroConfig {
         RedisCacheManager redisCacheManager = new RedisCacheManager();
         redisCacheManager.setRedisManager(redisManager());
         //设置前缀
-        redisCacheManager.setKeyPrefix("TEST_DEMO:");
+        redisCacheManager.setKeyPrefix("demo:");
         return redisCacheManager;
     }
 
@@ -127,7 +121,7 @@ public class ShiroConfig {
      */
     public RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
-        redisManager.setHost(host+":"+port);
+        redisManager.setHost(host + ":" + port);
         redisManager.setPassword(password);
         redisManager.setTimeout(timeout);
         return redisManager;

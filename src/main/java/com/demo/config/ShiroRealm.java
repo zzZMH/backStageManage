@@ -6,8 +6,10 @@ import com.demo.service.TestService;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -46,16 +48,18 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authToken) throws AuthenticationException {
-        UsernamePasswordToken token = (UsernamePasswordToken) authToken;
-        String username = token.getUsername();
+        String username = authToken.getPrincipal().toString();
+        String userPwd = new String((char[]) authToken.getCredentials());
+        userPwd = new Md5Hash(userPwd, username).toHex();
         List<User> userList = testService.getUser(username);
         if (userList != null && userList.size() > 0) {
             User user = userList.get(0);
             if (user.getState().equals("1")) {
                 SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
                         user,//用户
-                        user.getPwd(),//密码
-                        getName()//realm name
+                        userPwd,//密码
+                        ByteSource.Util.bytes(username),
+                        getName()
                 );
                 return authenticationInfo;
             }
