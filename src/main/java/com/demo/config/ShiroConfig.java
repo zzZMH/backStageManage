@@ -35,10 +35,8 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
-        Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+        Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         //过滤器配置
-        filterChainDefinitionMap.put("/druid/*", "anon");
-        filterChainDefinitionMap.put("/test/login", "anon");
         filterChainDefinitionMap.put("/**", "myShiroFilter");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         //自定义过滤器

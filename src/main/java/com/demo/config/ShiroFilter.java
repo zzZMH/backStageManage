@@ -19,7 +19,12 @@ public class ShiroFilter extends FormAuthenticationFilter {
     @Override
     public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         if (request instanceof HttpServletRequest) {
-            if (((HttpServletRequest) request).getMethod().toUpperCase().equals("OPTIONS")) {
+            HttpServletRequest req = (HttpServletRequest) request;
+            String urlStr = req.getRequestURL().toString().substring(req.getRequestURL().toString().indexOf(req.getContextPath())+req.getContextPath().length());
+            if (req.getMethod().toUpperCase().equals("OPTIONS")) {
+                return true;
+            }
+            if(urlStr.indexOf("/druid") == 0 || urlStr.indexOf("/test/login") == 0){
                 return true;
             }
         }
@@ -30,7 +35,6 @@ public class ShiroFilter extends FormAuthenticationFilter {
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletResponse res = (HttpServletResponse) response;
         res.setCharacterEncoding("utf-8");
-        res.setContentType("application/json; charset=utf-8");
         Map<String, Object> map = new HashMap<>();
         map.put("code", "error");
         map.put("msg", "未登录");
